@@ -71,7 +71,7 @@ public class RocketMQWriter<IN>
 
         this.deliveryGuarantee =
                 DeliveryGuarantee.valueOf(
-                        configuration.getString(RocketMQSinkOptions.DELIVERY_GUARANTEE));
+                        configuration.get(RocketMQSinkOptions.DELIVERY_GUARANTEE));
         this.messageQueueSelector = messageQueueSelector;
         this.serializationSchema = serializationSchema;
         this.rocketmqSinkContext = new RocketMQSinkContextImpl(initContext, configuration);
