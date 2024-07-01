@@ -1,11 +1,10 @@
 package org.apache.flink.connector.rocketmq.sink.writer.serializer;
 
+import org.apache.flink.connector.rocketmq.sink.writer.context.RocketMQSinkContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.flink.connector.rocketmq.sink.writer.context.RocketMQSinkContext;
 import org.apache.rocketmq.common.message.Message;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +21,7 @@ public class RocketMQEasySerializationSchema<T> implements RocketMQSerialization
         this.tags = tags;
         this.objectMapper = new ObjectMapper();
         this.methodCache = new ConcurrentHashMap<>();
-
     }
-
 
     @Override
     public Message serialize(T element, RocketMQSinkContext context, Long timestamp) {
@@ -46,14 +43,17 @@ public class RocketMQEasySerializationSchema<T> implements RocketMQSerialization
 
     private String extractField(T element, String fieldName) {
         try {
-            Method getKeyMethod = methodCache.computeIfAbsent(element.getClass().getName() + "_" + fieldName, clazz -> {
-                try {
+            Method getKeyMethod =
+                    methodCache.computeIfAbsent(
+                            element.getClass().getName() + "_" + fieldName,
+                            clazz -> {
+                                try {
 
-                    return element.getClass().getMethod("get" + fieldName);
-                } catch (NoSuchMethodException e) {
-                    return null;
-                }
-            });
+                                    return element.getClass().getMethod("get" + fieldName);
+                                } catch (NoSuchMethodException e) {
+                                    return null;
+                                }
+                            });
 
             if (getKeyMethod != null) {
                 Object key = getKeyMethod.invoke(element);
